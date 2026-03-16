@@ -1,0 +1,11 @@
+[package]
+name = "werve"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+
+
+[dependencies.adw]
+package = "libadwaita"
+version = "0.9.1"
