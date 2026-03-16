@@ -5,6 +5,7 @@ edition = "2024"
 
 [dependencies]
 freedesktop-desktop-entry = "0.8.1"
+dirs = "5.0"
 
 [dependencies.adw]
 package = "libadwaita"

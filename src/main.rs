@@ -3,6 +3,8 @@ use adw::{ActionRow, Application, ApplicationWindow};
 use adw::gtk::{Box, ListBox, Orientation, SelectionMode, SearchEntry, ScrolledWindow};
 use freedesktop_desktop_entry::{desktop_entries, get_languages_from_env};
 use std::env::var;
+mod cache;
+use cache::*;
 
 
 fn main() {
@@ -43,7 +45,7 @@ fn main() {
             .build();
 
         let apps = getdesktopfiles();
-        for (name, icon_name, exec) in apps {
+        for (name, icon, exec, score) in apps {
             let row = ActionRow::builder()
                 .title(name.as_str())
                 .subtitle(exec.as_str())
@@ -77,9 +79,10 @@ fn main() {
 
 
 
-fn getdesktopfiles() -> Vec<(String, String, String)> {
+fn getdesktopfiles() -> Vec<(String, String, String, i32)> {
     let cdesktop_bind = var("XDG_CURRENT_DESKTOP").unwrap();
     let current_desktop = cdesktop_bind.as_str();
+    let cache_count = read_cache();
     let mut desktopfiles = desktop_entries(&get_languages_from_env())
         .clone()
         .into_iter()
@@ -110,14 +113,16 @@ fn getdesktopfiles() -> Vec<(String, String, String)> {
             let name = desktop_group.0.get("Name")?.0.clone();
             let icon = desktop_group.0.get("Icon")?.0.clone();
             let exec = desktop_group.0.get("Exec")?.0.clone();
-            Some((name, icon, exec))
+            let score = cache_count.get(&name).unwrap_or(&0).clone();
+            Some((name, icon, exec, score))
         }).collect::<Vec<_>>();
 
-    desktopfiles.sort_by(|a, b| a.0.cmp(&b.0)); // 0 is name in (name, icon, exec)
+    desktopfiles.sort_by(|a, b| a.0.cmp(&b.0)); // 0 is name, lower means sorted alphabetically
+    desktopfiles.sort_by(|a, b| b.3.cmp(&a.3)); // 3 is score, higher means more relevant
 
-    desktopfiles
-
-    // for item in desktopfiles {
+    // for item in &desktopfiles {
     //     println!("{:?}", item);
     // }
+
+    desktopfiles
 }
