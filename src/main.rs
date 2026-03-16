@@ -1,6 +1,6 @@
 use adw::prelude::*;
 use adw::{ActionRow, Application, ApplicationWindow, HeaderBar};
-use adw::gtk::{Box, ListBox, Orientation, SelectionMode, SearchEntry};
+use adw::gtk::{Box, ListBox, Orientation, SelectionMode, SearchEntry, ScrolledWindow};
 use freedesktop_desktop_entry::{desktop_entries, get_languages_from_env, Iter, PathSource};
 use std::env::var;
 
@@ -51,9 +51,17 @@ fn main() {
             list.append(&row);
         }
 
+        // encasing the list in a scrolling element
+        let scrolled_window = ScrolledWindow::builder()
+            .child(&list)
+            .hscrollbar_policy(adw::gtk::PolicyType::Never)
+            .vscrollbar_policy(adw::gtk::PolicyType::Automatic)
+            .propagate_natural_height(true)
+            .build();
+
         let content = Box::new(Orientation::Vertical, 0);
         content.append(&search_entry);
-        content.append(&list);
+        content.append(&scrolled_window);
 
         let window = ApplicationWindow::builder()
             .application(app)
