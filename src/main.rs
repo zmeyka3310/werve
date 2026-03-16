@@ -1,7 +1,7 @@
 use adw::prelude::*;
-use adw::{ActionRow, Application, ApplicationWindow, HeaderBar};
+use adw::{ActionRow, Application, ApplicationWindow};
 use adw::gtk::{Box, ListBox, Orientation, SelectionMode, SearchEntry, ScrolledWindow};
-use freedesktop_desktop_entry::{desktop_entries, get_languages_from_env, Iter, PathSource};
+use freedesktop_desktop_entry::{desktop_entries, get_languages_from_env};
 use std::env::var;
 
 
@@ -80,8 +80,7 @@ fn main() {
 fn getdesktopfiles() -> Vec<(String, String, String)> {
     let cdesktop_bind = var("XDG_CURRENT_DESKTOP").unwrap();
     let current_desktop = cdesktop_bind.as_str();
-    let mut desktopfiles = Vec::new();
-    desktopfiles = desktop_entries(&get_languages_from_env())
+    let mut desktopfiles = desktop_entries(&get_languages_from_env())
         .clone()
         .into_iter()
         .filter_map(|entry| {
