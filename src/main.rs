@@ -1,7 +1,9 @@
 use adw::prelude::*;
-
 use adw::{ActionRow, Application, ApplicationWindow, HeaderBar};
 use adw::gtk::{Box, ListBox, Orientation, SelectionMode, SearchEntry};
+use freedesktop_desktop_entry::{desktop_entries, get_languages_from_env, Iter, PathSource};
+use std::env::var;
+
 
 fn main() {
     let application = Application::builder()
@@ -9,20 +11,23 @@ fn main() {
         .build();
 
     application.connect_activate(|app| {
-        // Create a search entry
         let search_entry = SearchEntry::builder()
             .placeholder_text("Search...")
+            .margin_top(20)
+            .margin_end(20)
+            .margin_bottom(0)
+            .margin_start(20)
             .build();
 
         // React to text changes
         search_entry.connect_search_changed(|entry| {
-            let text = entry.text();
+            let _text = entry.text();
             println!("Updated text");
         });
 
-        // Optionally react to pressing Enter
+        // React to pressing Enter
         search_entry.connect_activate(|entry| {
-            let text = entry.text();
+            let _text = entry.text();
             println!("Enter pressed");
         });
         search_entry.set_height_request(50);
@@ -36,23 +41,76 @@ fn main() {
             // makes the list look nicer
             .css_classes(vec![String::from("boxed-list")])
             .build();
-        list.append(&search_entry);
 
-        // Combine the content in a box
+        let apps = getdesktopfiles();
+        for (name, icon_name, exec) in apps {
+            let row = ActionRow::builder()
+                .title(name.as_str())
+                .subtitle(exec.as_str())
+                .build();
+            list.append(&row);
+        }
+
         let content = Box::new(Orientation::Vertical, 0);
-        // Adwaitas' ApplicationWindow does not include a HeaderBar
-        // content.append(&HeaderBar::new());
+        content.append(&search_entry);
         content.append(&list);
 
         let window = ApplicationWindow::builder()
             .application(app)
             .title("werve")
             .default_width(600)
-            // add content to window
             .content(&content)
             .build();
         window.present();
     });
 
     application.run();
+}
+
+
+
+fn getdesktopfiles() -> Vec<(String, String, String)> {
+    let cdesktop_bind = var("XDG_CURRENT_DESKTOP").unwrap();
+    let current_desktop = cdesktop_bind.as_str();
+    let mut desktopfiles = Vec::new();
+    desktopfiles = desktop_entries(&get_languages_from_env())
+        .clone()
+        .into_iter()
+        .filter_map(|entry| {
+            let desktop_group = entry.groups.0.get("Desktop Entry")?;
+            if let Some((value, _)) = desktop_group.0.get("NoDisplay") {
+                if value == "true" {
+                    return None;
+                }
+            }
+            if let Some((value, _)) = desktop_group.0.get("Terminal") {
+                if value == "true" {
+                    return None;
+                }
+            }
+            if let Some((value, _)) = desktop_group.0.get("OnlyShowIn") {
+                let envs: Vec<&str> = value.split(';').filter(|s| !s.is_empty()).collect();
+                if !envs.contains(&current_desktop) {
+                    return None;
+                }
+            }
+            if let Some((value, _)) = desktop_group.0.get("NotShowIn") {
+                let envs: Vec<&str> = value.split(';').filter(|s| !s.is_empty()).collect();
+                if envs.contains(&current_desktop) {
+                    return None;
+                }
+            }
+            let name = desktop_group.0.get("Name")?.0.clone();
+            let icon = desktop_group.0.get("Icon")?.0.clone();
+            let exec = desktop_group.0.get("Exec")?.0.clone();
+            Some((name, icon, exec))
+        }).collect::<Vec<_>>();
+
+    desktopfiles.sort_by(|a, b| a.0.cmp(&b.0)); // 0 is name in (name, icon, exec)
+
+    desktopfiles
+
+    // for item in desktopfiles {
+    //     println!("{:?}", item);
+    // }
 }
