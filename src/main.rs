@@ -32,7 +32,7 @@ fn main() {
             .build();
 
         let apps = getdesktopfiles();
-        for (name, icon, exec, score) in apps {
+        for (name, icon, exec, score) in &apps {
             let row = ActionRow::builder()
                 .title(name.as_str())
                 .subtitle(exec.as_str())
@@ -52,10 +52,26 @@ fn main() {
         content.append(&search_entry);
         content.append(&scrolled_window);
 
-        // React to text changes
-        search_entry.connect_search_changed(|entry| {
-            let _text = entry.text();
-            println!("Updated text");
+        let list_clone = list.clone();
+
+        search_entry.set_property("search-delay", &1u32); // set debounce to 1 ms (from 150 default)
+
+        search_entry.connect_search_changed(move |entry| {
+            let text = entry.text();
+            
+            let sortedapps = reeval(&text, apps.clone());
+
+            while let Some(child) = list_clone.first_child() {
+                list_clone.remove(&child);
+            }
+
+            for (name, icon, exec, score) in &sortedapps {
+                let row = ActionRow::builder()
+                    .title(name.as_str())
+                    .subtitle(exec.as_str())
+                    .build();
+                list_clone.append(&row);
+            }
         });
 
         // React to pressing Enter
@@ -125,4 +141,12 @@ fn getdesktopfiles() -> Vec<(String, String, String, i32)> {
     // }
 
     desktopfiles
+}
+
+
+fn reeval(searchterm: &str, desktopfiles: Vec<(String, String, String, i32)>) -> Vec<(String, String, String, i32)> {
+    if searchterm.is_empty() {
+        return desktopfiles;
+    }
+    unimplemented!()
 }
