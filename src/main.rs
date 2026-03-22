@@ -21,19 +21,6 @@ fn main() {
             .margin_start(20)
             .build();
 
-        // React to text changes
-        search_entry.connect_search_changed(|entry| {
-            let _text = entry.text();
-            println!("Updated text");
-        });
-
-        // React to pressing Enter
-        search_entry.connect_activate(|entry| {
-            let _text = entry.text();
-            println!("Enter pressed");
-        });
-        search_entry.set_height_request(50);
-
         let list = ListBox::builder()
             .margin_top(20)
             .margin_end(20)
@@ -64,6 +51,19 @@ fn main() {
         let content = Box::new(Orientation::Vertical, 0);
         content.append(&search_entry);
         content.append(&scrolled_window);
+
+        // React to text changes
+        search_entry.connect_search_changed(|entry| {
+            let _text = entry.text();
+            println!("Updated text");
+        });
+
+        // React to pressing Enter
+        search_entry.connect_activate(|entry| {
+            let _text = entry.text();
+            println!("Enter pressed");
+        });
+        search_entry.set_height_request(50);
 
         let window = ApplicationWindow::builder()
             .application(app)
