@@ -68,7 +68,7 @@ fn main() {
             for (name, icon, exec, score) in &sortedapps {
                 let row = ActionRow::builder()
                     .title(name.as_str())
-                    .subtitle(exec.as_str())
+                    .subtitle(score.to_string().as_str())
                     .build();
                 list_clone.append(&row);
             }
@@ -148,5 +148,40 @@ fn reeval(searchterm: &str, desktopfiles: Vec<(String, String, String, i32)>) ->
     if searchterm.is_empty() {
         return desktopfiles;
     }
-    unimplemented!()
+    let mut desktopfiles2 = desktopfiles.into_iter().map(|entry| reeval_single(searchterm, entry)).collect::<Vec<_>>();
+    desktopfiles2.sort_by(|a, b| a.3.cmp(&b.3)); // 3 is score, lower means more relevant
+    desktopfiles2
+}
+
+
+fn reeval_single(searchterm: &str, toevaluate: (String, String, String, i32)) -> (String, String, String, i32) {
+    let mut finalmult = 0;
+    let mut find_from = 0;
+    let mut found_first = false;
+    let mut score:i32 = 1;
+    let searchedstring = toevaluate.0.clone().to_lowercase();
+    for letter in searchterm.chars() {
+        let count = searchedstring.match_indices(letter).find_map(|(i, _)| (i >= find_from).then(|| i));
+        if !found_first {
+            finalmult += 1;
+            if !count.is_none() {
+                found_first = true;
+                score += (count.unwrap() - find_from) as i32;
+            }
+            else {
+                score *= 2;
+            }
+        }
+        else {
+            if !count.is_none(){
+                score += (count.unwrap() - find_from).pow(2) as i32;
+            }
+            else {
+                score *= 2;
+            }
+        }
+        find_from += 1;
+    }
+    score = score * finalmult;
+    (toevaluate.0, toevaluate.1, toevaluate.2, score)
 }
