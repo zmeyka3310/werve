@@ -32,13 +32,6 @@ fn main() {
             .build();
 
         let apps = getdesktopfiles();
-        for (name, icon, exec, score) in &apps {
-            let row = ActionRow::builder()
-                .title(name.as_str())
-                .subtitle(exec.as_str())
-                .build();
-            list.append(&row);
-        }
 
         // encasing the list in a scrolling element
         let scrolled_window = ScrolledWindow::builder()
