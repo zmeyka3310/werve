@@ -1,8 +1,10 @@
 use adw::prelude::*;
 use adw::{ActionRow, Application, ApplicationWindow};
-use adw::gtk::{Box, ListBox, Orientation, SelectionMode, SearchEntry, ScrolledWindow};
+use adw::gtk::{Box, ListBox, Orientation, SelectionMode, SearchEntry, ScrolledWindow, Image};
 use freedesktop_desktop_entry::{desktop_entries, get_languages_from_env};
+use adw::gio::{File, FileIcon};
 use std::env::var;
+use std::path::Path;
 mod cache;
 use cache::*;
 
@@ -63,6 +65,16 @@ fn main() {
                     .title(name.as_str())
                     .subtitle(score.to_string().as_str())
                     .build();
+
+                    if Path::new(icon).is_absolute() && Path::new(icon).exists() {
+                        let image = Image::from_file(icon);
+                        image.set_pixel_size(16);
+                        row.add_prefix(&image);
+                    } else if !icon.is_empty() {
+                        row.set_icon_name(Some(icon));
+                        
+                    }
+
                 list_clone.append(&row);
             }
         });
