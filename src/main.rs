@@ -169,7 +169,7 @@ fn reeval_single(searchterm: &str, toevaluate: (String, String, String, i32)) ->
                 score += (count.unwrap() - find_from) as i32;
             }
             else {
-                score *= 2;
+                score *= 4;
             }
         }
         else {
@@ -177,7 +177,7 @@ fn reeval_single(searchterm: &str, toevaluate: (String, String, String, i32)) ->
                 score += (count.unwrap() - find_from).pow(2) as i32;
             }
             else {
-                score *= 2;
+                score *= 4;
             }
         }
         find_from += 1;
