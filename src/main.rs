@@ -68,11 +68,12 @@ fn main() {
 
                     if Path::new(icon).is_absolute() && Path::new(icon).exists() {
                         let image = Image::from_file(icon);
-                        image.set_pixel_size(16);
+                        image.set_pixel_size(48);
                         row.add_prefix(&image);
                     } else if !icon.is_empty() {
-                        row.set_icon_name(Some(icon));
-                        
+                        let image = Image::from_icon_name(icon);
+                        image.set_pixel_size(48);
+                        row.add_prefix(&image);
                     }
 
                 list_clone.append(&row);
