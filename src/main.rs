@@ -97,12 +97,17 @@ fn main() {
                 });
                 list_clone.append(&row);
             }
+            if let Some(first_row) = list_clone.first_child() {
+                list_clone.select_row(Some(&first_row.downcast::<adw::ActionRow>().unwrap()));
+            }
         });
 
         // React to pressing Enter
-        search_entry.connect_activate(|entry| {
-            let _text = entry.text();
-            println!("Enter pressed");
+        let list_for_enter = list.clone();
+        search_entry.connect_activate(move |_| {
+            if let Some(selected_row) = list_for_enter.selected_row() {
+                selected_row.activate(); // This triggers the row's `connect_activated` closure
+            }
         });
         search_entry.set_height_request(50);
 
