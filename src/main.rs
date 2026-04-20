@@ -28,7 +28,7 @@ fn main() {
             .margin_end(20)
             .margin_bottom(20)
             .margin_start(20)
-            .selection_mode(SelectionMode::None)
+            .selection_mode(SelectionMode::Single)
             // makes the list look nicer
             .css_classes(vec![String::from("boxed-list")])
             .build();
@@ -66,16 +66,33 @@ fn main() {
                     .subtitle(score.to_string().as_str())
                     .build();
 
-                    if Path::new(icon).is_absolute() && Path::new(icon).exists() {
-                        let image = Image::from_file(icon);
-                        image.set_pixel_size(48);
-                        row.add_prefix(&image);
-                    } else if !icon.is_empty() {
-                        let image = Image::from_icon_name(icon);
-                        image.set_pixel_size(48);
-                        row.add_prefix(&image);
-                    }
+                if Path::new(icon).is_absolute() && Path::new(icon).exists() {
+                    let image = Image::from_file(icon);
+                    image.set_pixel_size(48);
+                    row.add_prefix(&image);
+                } else if !icon.is_empty() {
+                    let image = Image::from_icon_name(icon);
+                    image.set_pixel_size(48);
+                    row.add_prefix(&image);
+                }
 
+                let exec_clone = exec.clone();
+                let name_clone = name.clone();
+                row.set_activatable(true);
+                row.connect_activated(move |_| {
+                    println!("Detected: {}", exec_clone);
+                    update_cache(&name_clone);
+                    let cleaned = exec_clone
+                    .replace("%U", "")
+                    .replace("%u", "")
+                    .replace("%f", "")
+                    .replace("%F", "")
+                    .replace("%i", "")
+                    .replace("%c", "")
+                    .replace("%k", "");
+                    std::process::Command::new("sh").arg("-c").arg(&cleaned).spawn();
+                    app_clone.quit();
+                });
                 list_clone.append(&row);
             }
         });
