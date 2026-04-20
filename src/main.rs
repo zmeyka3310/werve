@@ -48,6 +48,7 @@ fn main() {
         content.append(&scrolled_window);
 
         let list_clone = list.clone();
+        let app_clone = app.clone();
 
         search_entry.set_property("search-delay", &1u32); // set debounce to 1 ms (from 150 default)
 
@@ -78,6 +79,7 @@ fn main() {
 
                 let exec_clone = exec.clone();
                 let name_clone = name.clone();
+                let app_cloneception = app_clone.clone();
                 row.set_activatable(true);
                 row.connect_activated(move |_| {
                     println!("Detected: {}", exec_clone);
@@ -91,7 +93,7 @@ fn main() {
                     .replace("%c", "")
                     .replace("%k", "");
                     std::process::Command::new("sh").arg("-c").arg(&cleaned).spawn();
-                    app_clone.quit();
+                    app_cloneception.quit();
                 });
                 list_clone.append(&row);
             }
