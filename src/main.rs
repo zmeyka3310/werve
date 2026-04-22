@@ -53,7 +53,7 @@ fn main() {
         search_entry.set_property("search-delay", &1u32); // set debounce to 1 ms (from 150 default)
 
         search_entry.connect_search_changed(move |entry| {
-            let text = entry.text();
+            let text = entry.text().to_lowercase();
             
             let sortedapps = reeval(&text, apps.clone());
 
@@ -178,7 +178,7 @@ fn reeval(searchterm: &str, desktopfiles: Vec<(String, String, String, i32)>) ->
     if searchterm.is_empty() {
         return desktopfiles;
     }
-    let mut desktopfiles2 = desktopfiles.into_iter().map(|entry| reeval_single(&searchterm.to_lowercase(), entry)).collect::<Vec<_>>();
+    let mut desktopfiles2 = desktopfiles.into_iter().map(|entry| reeval_single(searchterm, entry)).collect::<Vec<_>>();
     desktopfiles2.sort_by(|a, b| a.3.cmp(&b.3)); // 3 is score, lower means more relevant
     desktopfiles2
 }
