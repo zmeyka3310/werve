@@ -2,7 +2,6 @@ use adw::prelude::*;
 use adw::{ActionRow, Application, ApplicationWindow};
 use adw::gtk::{Box, ListBox, Orientation, SelectionMode, SearchEntry, ScrolledWindow, Image};
 use freedesktop_desktop_entry::{desktop_entries, get_languages_from_env};
-use adw::gio::{File, FileIcon};
 use std::env::var;
 use std::path::Path;
 mod cache;
@@ -92,7 +91,7 @@ fn main() {
                     .replace("%i", "")
                     .replace("%c", "")
                     .replace("%k", "");
-                    std::process::Command::new("sh").arg("-c").arg(&cleaned).spawn();
+                    let _ = std::process::Command::new("sh").arg("-c").arg(&cleaned).spawn();
                     app_cloneception.quit();
                 });
                 list_clone.append(&row);
@@ -115,9 +114,11 @@ fn main() {
             .application(app)
             .title("werve")
             .default_width(600)
+            .default_height(400)
+            .decorated(false)
             .content(&content)
             .build();
-        window.present();
+            window.present();
     });
 
     application.run();
