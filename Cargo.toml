@@ -10,3 +10,7 @@ dirs = "5.0"
 [dependencies.adw]
 package = "libadwaita"
 version = "0.9.1"
+
+[build-dependencies]
+cc = "1.0"
+pkg-config = "0.3"

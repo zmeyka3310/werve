@@ -1,12 +1,13 @@
 use adw::prelude::*;
 use adw::{ActionRow, Application, ApplicationWindow};
-use adw::gtk::{Box, ListBox, Orientation, SelectionMode, SearchEntry, ScrolledWindow, Image};
+use adw::gtk::{Box, ListBox, Orientation, SelectionMode, SearchEntry, ScrolledWindow, Image, Stack};
 use std::path::Path;
 mod cache;
 use cache::*;
 mod desktopsearch;
 use desktopsearch::*;
-
+mod graphlib;
+use graphlib::grapher::create_blank_pixbuf;
 
 fn main() {
     let application = Application::builder()
@@ -42,17 +43,50 @@ fn main() {
             .propagate_natural_height(true)
             .build();
 
+        // graph goes here
+        let graph = adw::gtk::Picture::builder()
+            .vexpand(true)
+            .hexpand(true)
+            .visible(true)
+            .can_shrink(true)          // shrink if widget is smaller than content
+            .keep_aspect_ratio(true)   // preserve graph proportions
+            .build();
+
+        let stack = Stack::new();
+        stack.add_titled(&scrolled_window, Some("list"), "List");
+        stack.add_titled(&graph, Some("graph"), "Graph");
+        stack.set_visible_child_name("list");
+        stack.set_vexpand(true);   // Take all vertical space left in the Box
+        stack.set_hexpand(true);   // Take all horizontal space
+        stack.set_visible(true);
+
         let content = Box::new(Orientation::Vertical, 0);
         content.append(&search_entry);
-        content.append(&scrolled_window);
+        content.append(&stack);
 
         let list_clone = list.clone();
         let app_clone = app.clone();
+        let stack_clone = stack.clone();
+        let graph_clone = graph.clone();
 
         search_entry.set_property("search-delay", &1u32); // set debounce to 1 ms (from 150 default)
 
         search_entry.connect_search_changed(move |entry| {
             let text = entry.text().to_lowercase();
+
+            if text.contains('=') {
+                let pix = unsafe { create_blank_pixbuf(4000, 2000) }; // TODO: Pull actual values from window size
+                if let Some(pix) = &pix {
+                    let texture = adw::gdk::Texture::for_pixbuf(pix);
+                    graph_clone.set_paintable(Some(&texture));
+                } else {
+                    graph_clone.set_paintable(None::<&adw::gdk::Texture>);
+                }
+                stack_clone.set_visible_child_name("graph");
+            }
+            else {
+                stack_clone.set_visible_child_name("list");
+            }
             
             let sortedapps = reeval(&text, apps.clone());
 
