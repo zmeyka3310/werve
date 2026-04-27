@@ -114,8 +114,8 @@ fn main() {
         let window = ApplicationWindow::builder()
             .application(app)
             .title("werve")
-            .default_width(600)
-            .default_height(400)
+            .default_width(768)
+            .default_height(648)
             .decorated(false)
             .content(&content)
             .build();
