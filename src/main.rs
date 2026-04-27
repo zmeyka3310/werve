@@ -94,6 +94,7 @@ fn main() {
                     let _ = std::process::Command::new("sh").arg("-c").arg(&cleaned).spawn();
                     app_cloneception.quit();
                 });
+                row.set_height_request(74);
                 list_clone.append(&row);
             }
             if let Some(first_row) = list_clone.first_child() {
