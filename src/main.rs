@@ -77,7 +77,7 @@ fn main() {
             if text.contains('=') {
                 let mut functozero = text.replace("=", " - (");
                 functozero.push_str(")");
-                let pix = unsafe { create_graph_pixbuf(graph.allocated_width(), graph.allocated_height(), 10, &functozero) }; // TODO: Pull actual values from window size
+                let pix = unsafe { create_graph_pixbuf(graph.allocated_width(), graph.allocated_height(), 10, &functozero) };
                 if let Some(pix) = &pix {
                     let texture = adw::gdk::Texture::for_pixbuf(pix);
                     graph_clone.set_paintable(Some(&texture));
