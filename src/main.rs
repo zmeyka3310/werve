@@ -7,7 +7,7 @@ use cache::*;
 mod desktopsearch;
 use desktopsearch::*;
 mod graphlib;
-use graphlib::grapher::create_blank_pixbuf;
+use graphlib::grapher::create_graph_pixbuf;
 
 fn main() {
     let application = Application::builder()
@@ -75,7 +75,9 @@ fn main() {
             let text = entry.text().to_lowercase();
 
             if text.contains('=') {
-                let pix = unsafe { create_blank_pixbuf(4000, 2000) }; // TODO: Pull actual values from window size
+                let mut functozero = text.replace("=", " - (");
+                functozero.push_str(")");
+                let pix = unsafe { create_graph_pixbuf(graph.allocated_width(), graph.allocated_height(), 10, &functozero) }; // TODO: Pull actual values from window size
                 if let Some(pix) = &pix {
                     let texture = adw::gdk::Texture::for_pixbuf(pix);
                     graph_clone.set_paintable(Some(&texture));
