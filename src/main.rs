@@ -8,6 +8,7 @@ mod desktopsearch;
 use desktopsearch::*;
 mod graphlib;
 use graphlib::grapher::create_graph_pixbuf;
+use fancy_regex::Regex;
 
 fn main() {
     let application = Application::builder()
@@ -75,8 +76,10 @@ fn main() {
             let text = entry.text().to_lowercase();
 
             if text.contains('=') {
-                let mut functozero = text.replace("=", " - (");
+                let mut functozero = text.replace("=", "-(");
                 functozero.push_str(")");
+                let re = Regex::new(r"[xy)](?=[xy(]|\d)|\d(?=[xy(])").unwrap();
+                functozero = re.replace_all(&functozero, "$0*").to_string();
                 let pix = unsafe { create_graph_pixbuf(graph.allocated_width(), graph.allocated_height(), 10, &functozero) };
                 if let Some(pix) = &pix {
                     let texture = adw::gdk::Texture::for_pixbuf(pix);
