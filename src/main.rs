@@ -50,15 +50,15 @@ fn main() {
             .hexpand(true)
             .visible(true)
             .can_shrink(true)          // shrink if widget is smaller than content
-            .keep_aspect_ratio(true)   // preserve graph proportions
+            .keep_aspect_ratio(true)
             .build();
 
         let stack = Stack::new();
         stack.add_titled(&scrolled_window, Some("list"), "List");
         stack.add_titled(&graph, Some("graph"), "Graph");
         stack.set_visible_child_name("list");
-        stack.set_vexpand(true);   // Take all vertical space left in the Box
-        stack.set_hexpand(true);   // Take all horizontal space
+        stack.set_vexpand(true);
+        stack.set_hexpand(true);
         stack.set_visible(true);
 
         let content = Box::new(Orientation::Vertical, 0);
@@ -75,11 +75,15 @@ fn main() {
         search_entry.connect_search_changed(move |entry| {
             let text = entry.text().to_lowercase();
 
+            // making the graph
             if text.contains('=') {
+                // transform f(x,y) = g(x,y) into f(x,y)-g(x,y)
                 let mut functozero = text.replace("=", "-(");
                 functozero.push_str(")");
+                // add multiplications signs for xy) followed by xy( or digit, and after a digit followed by xy(
                 let re = Regex::new(r"[xy)](?=[xy(]|\d)|\d(?=[xy(])").unwrap();
                 functozero = re.replace_all(&functozero, "$0*").to_string();
+
                 let pix = unsafe { create_graph_pixbuf(graph.allocated_width(), graph.allocated_height(), 10, &functozero) };
                 if let Some(pix) = &pix {
                     let texture = adw::gdk::Texture::for_pixbuf(pix);
@@ -105,6 +109,8 @@ fn main() {
                     .subtitle(score.to_string().as_str())
                     .build();
 
+                // make icons and pictures big
+                // TODO: keep icon name and dont regenerate on every list rebuild
                 if Path::new(icon).is_absolute() && Path::new(icon).exists() {
                     let image = Image::from_file(icon);
                     image.set_pixel_size(48);
@@ -122,6 +128,7 @@ fn main() {
                 row.connect_activated(move |_| {
                     println!("Detected: {}", exec_clone);
                     update_cache(&name_clone);
+                    // clear not relevant launch flags
                     let cleaned = exec_clone
                     .replace("%U", "")
                     .replace("%u", "")
@@ -145,7 +152,7 @@ fn main() {
         let list_for_enter = list.clone();
         search_entry.connect_activate(move |_| {
             if let Some(selected_row) = list_for_enter.selected_row() {
-                selected_row.activate(); // This triggers the row's `connect_activated` closure
+                selected_row.activate();
             }
         });
         search_entry.set_height_request(50);

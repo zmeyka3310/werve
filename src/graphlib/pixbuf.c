@@ -40,8 +40,6 @@ void set_expression(const char *expr)
 
 
     tcc_set_output_type(tcc_state, TCC_OUTPUT_MEMORY);
-
-
     tcc_add_library_path(tcc_state, "/usr/lib");
     tcc_add_library(tcc_state, "m");
 
@@ -76,7 +74,7 @@ create_pixbuf(int width, int height, double rightx, double leftx, double topy, d
 {
     GdkPixbuf *pixbuf = gdk_pixbuf_new(GDK_COLORSPACE_RGB, TRUE, 8, width, height);
 
-    gdk_pixbuf_fill(pixbuf, 0xffffffff);
+    gdk_pixbuf_fill(pixbuf, 0xffffff00);
 
     if (!eval_func)
         return pixbuf;
@@ -89,14 +87,9 @@ create_pixbuf(int width, int height, double rightx, double leftx, double topy, d
     double y_step = (topy - bottomy) / height;
     const double threshold = 1e-7;   // almost 0
 
-    /* Allocate array for grid point evaluations (corners) */
     int grid_w = width + 1;
     int grid_h = height + 1;
     double *values = malloc(grid_w * grid_h * sizeof(double));
-    if (!values) {
-        /* On allocation failure just return the white image */
-        return pixbuf;
-    }
 
     /* Evaluate the function at every grid point */
     for (int j = 0; j < grid_h; j++) {
@@ -125,11 +118,11 @@ create_pixbuf(int width, int height, double rightx, double leftx, double topy, d
             if (isfinite(v01)) def[ndef++] = v01;
             if (isfinite(v11)) def[ndef++] = v11;
 
-            /* All corners undefined → white (skip, already white) */
+            /* All corners undefined */
             if (ndef == 0)
                 continue;
 
-            /* Any defined corner near zero → black */
+            /* Any defined corner near zero */
             int has_zero = 0;
             for (int k = 0; k < ndef; k++) {
                 if (fabs(def[k]) < threshold) {
@@ -139,10 +132,10 @@ create_pixbuf(int width, int height, double rightx, double leftx, double topy, d
             }
             if (has_zero) {
                 guchar *p = row + i * n_channels;
-                p[0] = 0;   /* R */
-                p[1] = 0;   /* G */
-                p[2] = 0;   /* B */
-                p[3] = 255; /* A */
+                p[0] = 255;
+                p[1] = 255;
+                p[2] = 255;
+                p[3] = 255;
                 continue;
             }
 
@@ -153,14 +146,12 @@ create_pixbuf(int width, int height, double rightx, double leftx, double topy, d
                 else if (def[k] < 0.0) neg = 1;
             }
             if (pos && neg) {
-                /* Mixed signs → black */
                 guchar *p = row + i * n_channels;
-                p[0] = 0;
-                p[1] = 0;
-                p[2] = 0;
+                p[0] = 255;
+                p[1] = 255;
+                p[2] = 255;
                 p[3] = 255;
             }
-            /* All same sign or only zeros already handled → stays white */
         }
     }
 
