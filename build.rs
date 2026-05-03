@@ -7,6 +7,9 @@ fn main() {
     cc::Build::new()
         .file("src/graphlib/pixbuf.c")
         .includes(&gdk_pixbuf.include_paths)
-        .flag("-Wno-unused-parameter")
-        .compile("graphlib_pixbuf");
+        .opt_level(0) // this is needed to not break jit in graphlib
+        .compile("pixbuf");
+    println!("cargo:rerun-if-changed=src/graphlib/pixbuf.c");
+    println!("cargo:rustc-link-lib=tcc");
+    println!("cargo:rustc-link-lib=m");
 }
