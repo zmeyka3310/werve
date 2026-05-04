@@ -104,7 +104,7 @@ fn main() {
             for (name, icon, exec, score) in &sortedapps {
                 let row = ActionRow::builder()
                     .title(name.as_str())
-                    .subtitle(score.to_string().as_str())
+                    // .subtitle(score.to_string().as_str())
                     .build();
 
                 // make icons and pictures big
@@ -142,7 +142,9 @@ fn main() {
                 list_clone.append(&row);
             }
             if let Some(first_row) = list_clone.first_child() {
-                list_clone.select_row(Some(&first_row.downcast::<adw::ActionRow>().unwrap()));
+                if stack_clone.visible_child_name() == Some("list".into()) {
+                    list_clone.select_row(Some(&first_row.downcast::<adw::ActionRow>().unwrap()));
+                }
             }
         });
 
