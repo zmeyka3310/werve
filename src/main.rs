@@ -30,8 +30,6 @@ fn main() {
             .margin_bottom(20)
             .margin_start(20)
             .selection_mode(SelectionMode::Single)
-            // makes the list look nicer
-            .css_classes(vec![String::from("boxed-list")])
             .build();
 
         let apps = getdesktopfiles();
