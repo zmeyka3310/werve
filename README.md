@@ -1,8 +1,8 @@
-#Search app with soulvercore and graphing integration.
+### Search app with soulvercore and graphing integration.
 
 ---
 
-#Deps:
+## Deps:
 ```
 libgtk
 libadwaita
